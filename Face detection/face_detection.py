@@ -24,6 +24,8 @@ import matplotlib.pyplot as plt
 # plt.imshow(img_rgb)
 # # time.sleep(5)
 # plt.axis('off')
+# cv2.imshow("Faces", img_rgb)
+# cv2.waitKey(0)
 
 def detect_bounding_box(vid):
     gray_image = cv2.cvtColor(vid, cv2.COLOR_BGR2GRAY)
@@ -41,13 +43,9 @@ while True:
     if result is False:
         break  # terminate the loop if the frame is not read successfully
 
-    faces = detect_bounding_box(
-        video_frame
-    )  # apply the function to the video frame
+    faces = detect_bounding_box(video_frame)  # apply the function to the video frame
 
-    cv2.imshow(
-        "Face Detection", video_frame
-    )  # display the processed frame in a window named "Face Detection"
+    cv2.imshow("Face Detection", video_frame)  # display the processed frame in a window named "Face Detection"
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
