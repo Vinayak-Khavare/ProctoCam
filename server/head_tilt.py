@@ -87,11 +87,13 @@ while(True):
     cv.imshow('Frame', frame)
     if cheating_dect:
         count += 1
-        if(count>8):
+        if(count>8 and count<=20):
             timestamp = int(time.time())
             save_as = f'caught_{timestamp}.png'
             cv.imwrite(save_as,frame)
             cv.waitKey(500)
+        elif count>20:
+            break
   
     if cv.waitKey(1) & 0xFF == ord('q'): 
         break
