@@ -6,9 +6,10 @@ cap = cv.VideoCapture(0)
 if not cap.isOpened():
     print("Error: Unable to open camera.")
     exit()
-face_dect = cv.CascadeClassifier(".\server\haarcascade_frontalface_default.xml")
-eye_dect = cv.CascadeClassifier(".\server\haarcascade_eye.xml")
+face_dect = cv.CascadeClassifier("./server/haarcascade_frontalface_default.xml")
+eye_dect = cv.CascadeClassifier("./server/haarcascade_eye.xml")
 count = 0
+
 while(True):
     ret, frame = cap.read()
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
