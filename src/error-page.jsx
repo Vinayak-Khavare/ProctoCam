@@ -5,12 +5,19 @@ export default function ErrorPage() {
   console.error(error);
 
   return (
-    <div className="bg-base-100">
-      <h1>Oops!</h1>
-      <p>Sorry, an unexpected error has occurred.</p>
-      <p>
-        <i>{error.statusText || error.message}</i>
-      </p>
+    <div
+      data-theme="sunset"
+      className="bg-base-100 min-h-screen grid place-content-center"
+    >
+      <div className="text-center space-y-3">
+        <h1 className="lato-black text-7xl">Oops!</h1>
+        <p className="lato-bold text-lg">
+          Sorry, an unexpected error has occurred.
+        </p>
+        <p className="text-base-content/35">
+          <i>{error.statusText || error.message}</i>
+        </p>
+      </div>
     </div>
   );
 }

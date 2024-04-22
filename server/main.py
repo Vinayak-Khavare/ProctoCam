@@ -1,12 +1,20 @@
-from flask import Flask, Response
+from flask import Flask, Response, jsonify
+from flask_socketio import SocketIO, emit
 import cv2 as cv
 import numpy as np
 import time
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+@socketio.on('connect')
+def handle_connect(data):
+    print(data)
+
 
 def generate_frames():
-    cap = cv.VideoCapture(1)
+    cap = cv.VideoCapture(0)
     if not cap.isOpened():
         print("Error: Unable to open camera.")
         return
@@ -31,6 +39,7 @@ def generate_frames():
                 eyes = eye_dect.detectMultiScale(gray[y:(y+h),x:(x+h)],1.3,5)
 
                 if(len(faces)>1):
+                    socketio.emit('cheating_detected', {'name': 'admin', 'message': 'Cheating detected!'})
                     cv.putText(frame,'CHEATING!!!! ',(100,100),cv.FONT_HERSHEY_SIMPLEX, 4, (0,0,255), 2, cv.LINE_4)
                     cheating_dect = True
 
@@ -67,7 +76,7 @@ def generate_frames():
                     dx = rex-lex
                     dy = rey-ley
 
-                    if(dx ==0):
+                    if(dx==0):
                         if(dy>=0):
                             angle = 90
                         else:
@@ -83,7 +92,8 @@ def generate_frames():
                     elif(angle>-15 and angle<-7):
                         cv.putText(frame,'LEFT TILT: '+ str(int(angle)) + 'degrees',(20,20),cv.FONT_HERSHEY_SIMPLEX, 1, (0,255,187), 2, cv.LINE_4)
                     else:
-                        if(angle!=90 and angle!=-90):
+                        if((angle>=15 and angle<90) or (angle <= -15 and angle > -90)):
+                            socketio.emit('cheating_detected', {'name':'admin', 'message': 'Cheating detected!'})
                             cv.putText(frame,'CHEATING!!!! ',(100,100),cv.FONT_HERSHEY_SIMPLEX, 4, (0,0,255), 2, cv.LINE_4)
                             cheating_dect = True
                         else:
@@ -124,5 +134,4 @@ def video_feed():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    socketio.run(app, debug=True)
