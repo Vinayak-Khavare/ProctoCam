@@ -6,9 +6,10 @@ cap = cv.VideoCapture(0)
 if not cap.isOpened():
     print("Error: Unable to open camera.")
     exit()
-face_dect = cv.CascadeClassifier("haarcascade_frontalface_default.xml")
-eye_dect = cv.CascadeClassifier("haarcascade_eye.xml")
+face_dect = cv.CascadeClassifier("./server/haarcascade_frontalface_default.xml")
+eye_dect = cv.CascadeClassifier("./server/haarcascade_eye.xml")
 count = 0
+
 while(True):
     ret, frame = cap.read()
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -23,7 +24,12 @@ while(True):
         #draw a circle at the center of the reactangle ie face
         cv.circle(frame, (x+int(w*0.5),y+int(h*0.5)),3,(100,100,10),-1)
     eyes = eye_dect.detectMultiScale(gray[y:(y+h),x:(x+h)],1.3,5) #detect the eyes in the face. since eyes will lie within rectangular box we
-                                                              # the box region of image that is 'grey[y:y+h,x:x+w]
+                        
+    if(len(faces)>1):
+        cv.putText(frame,'CHEATING!!!! ',(100,100),cv.FONT_HERSHEY_SIMPLEX, 4, (0,0,255), 2, cv.LINE_4)
+        cheating_dect = True
+
+                                              # the box region of image that is 'grey[y:y+h,x:x+w]
     index = 0
     eye_1=[None,None,None,None]
     eye_2=[None,None,None,None]
@@ -65,28 +71,34 @@ while(True):
         angle = (angle*180)/(np.pi)
         
     #constraints
-        if(angle<=3 and angle>=-3):
+        if(angle<=7 and angle>=-7):
             cv.putText(frame,'STRAIGHT ',(20,20),cv.FONT_HERSHEY_SIMPLEX, 1, (255,87,51), 2, cv.LINE_4)
-        elif(angle<12 and angle>3):
+        elif(angle<15 and angle>7):
             cv.putText(frame,'RIGHT TILT: '+ str(int(angle)) + 'degrees',(20,20),cv.FONT_HERSHEY_SIMPLEX, 1, (0,255,187), 2, cv.LINE_4)
-        elif((angle>=12 or angle<=-12) and (angle != 90 or angle != -90)):
-            cv.putText(frame,'CHEATING!!!! ',(100,100),cv.FONT_HERSHEY_SIMPLEX, 4, (0,0,255), 2, cv.LINE_4)
-            cheating_dect = True
-        elif(angle>-12 and angle<-3):
+        elif(angle>-15 and angle<-7):
             cv.putText(frame,'LEFT TILT: '+ str(int(angle)) + 'degrees',(20,20),cv.FONT_HERSHEY_SIMPLEX, 1, (0,255,187), 2, cv.LINE_4)
-        
+        else:
+            if(angle!=90 and angle!=-90):
+                cv.putText(frame,'CHEATING!!!! ',(100,100),cv.FONT_HERSHEY_SIMPLEX, 4, (0,0,255), 2, cv.LINE_4)
+                cheating_dect = True
+            else:
+                cv.putText(frame,'STRAIGHT ',(20,20),cv.FONT_HERSHEY_SIMPLEX, 1, (255,87,51), 2, cv.LINE_4)
+
 
     cv.imshow('Frame', frame)
     if cheating_dect:
         count += 1
-        if(count>8):
+        if(count>8 and count<=20):
             timestamp = int(time.time())
             save_as = f'caught_{timestamp}.png'
             cv.imwrite(save_as,frame)
-            cv.waitKey(2500)
+            cv.waitKey(500)
+        elif count>20:
+            break
   
-    if cv.waitKey(1) & 0xFF == 27: 
+    if cv.waitKey(1) & 0xFF == ord('q'): 
         break
+
 cap.release() 
 cv.destroyAllWindows() 
 
